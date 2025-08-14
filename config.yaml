@@ -1,0 +1,10 @@
+# Global paths to remove
+paths:
+  - [status]
+  - [metadata, annotations, kubectl.kubernetes.io/last-applied-configuration]
+# Kind-specific paths: only remove these when 'kind' matches
+kindPaths:
+  ConfigMap:
+    - [metadata, revision]
+  Deployment:
+    - [spec, template, metadata, annotations, rollout]
