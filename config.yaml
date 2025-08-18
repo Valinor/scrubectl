@@ -2,9 +2,17 @@
 paths:
   - [status]
   - [metadata, annotations, kubectl.kubernetes.io/last-applied-configuration]
+  - [metadata, ownerReferences]
+  - [ metadata, resourceVersion ]
+  - [ metadata, uid ]
+  - [ metadata, creationTimestamp ]
 # Kind-specific paths: only remove these when 'kind' matches
 kindPaths:
   ConfigMap:
     - [metadata, revision]
   Deployment:
     - [spec, template, metadata, annotations, rollout]
+  Pod:
+    - [ spec, containers, terminationMessagePath ]
+    - [ spec, containers, terminationMessagePolicy ]
+    - [ spec, terminationGracePeriodSeconds ]

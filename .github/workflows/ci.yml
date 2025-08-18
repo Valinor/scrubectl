@@ -33,4 +33,37 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: scrubectl-${{ matrix.os }}-${{ matrix.arch }}
-          path: bin/scrubectl-${{ matrix.os }}-${{ matrix.arch }}
+          path: bin/scrubectl-${{ matrix.os }}-${{ matrix.arch }}*
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: scrubectl-ubuntu-latest-amd64
+          path: ./artifacts
+      - uses: actions/download-artifact@v4
+        with:
+          name: scrubectl-ubuntu-latest-arm64
+          path: ./artifacts
+      - uses: actions/download-artifact@v4
+        with:
+          name: scrubectl-macos-latest-amd64
+          path: ./artifacts
+      - uses: actions/download-artifact@v4
+        with:
+          name: scrubectl-macos-latest-arm64
+          path: ./artifacts
+      - uses: actions/download-artifact@v4
+        with:
+          name: scrubectl-windows-latest-amd64
+          path: ./artifacts
+      - uses: actions/download-artifact@v4
+        with:
+          name: scrubectl-windows-latest-arm64
+          path: ./artifacts
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*

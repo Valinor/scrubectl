@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod-nginx-e11547
+  generateName: my-pod-nginx-
+  namespace: default
+  uid: 4c2e3d1a-b1d2-4f7a-9b76-1d9e3e15c47a
+  resourceVersion: "123456"
+  creationTimestamp: "2025-08-18T10:12:34Z"
+  labels:
+    app: nginx
+    pod-template-hash: e11547
+  ownerReferences:
+  - apiVersion: apps/v1
+    kind: ReplicaSet
+    name: my-pod-nginx-e11547
+    uid: 95de1b83-8423-47ef-8e5f-1b54fca8a4a2
+    controller: true
+    blockOwnerDeletion: true
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.25
+    ports:
+    - containerPort: 80
+      protocol: TCP
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    imagePullPolicy: IfNotPresent
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  terminationGracePeriodSeconds: 30
+status:
+  phase: Running
+  conditions:
+  - type: Initialized
+    status: "True"
+    lastProbeTime: null
+    lastTransitionTime: "2025-08-18T10:12:34Z"
+  - type: Ready
+    status: "True"
+    lastProbeTime: null
+    lastTransitionTime: "2025-08-18T10:12:40Z"
+  - type: ContainersReady
+    status: "True"
+    lastProbeTime: null
+    lastTransitionTime: "2025-08-18T10:12:40Z"
+  - type: PodScheduled
+    status: "True"
+    lastProbeTime: null
+    lastTransitionTime: "2025-08-18T10:12:34Z"
+  hostIP: 10.0.0.5
+  podIP: 10.244.1.23
+  podIPs:
+  - ip: 10.244.1.23
+  startTime: "2025-08-18T10:12:34Z"
+  containerStatuses:
+  - name: nginx
+    state:
+      running:
+        startedAt: "2025-08-18T10:12:39Z"
+    lastState: {}
+    ready: true
+    restartCount: 0
+    image: nginx:1.25
+    imageID: docker-pullable://nginx@sha256:abcdef1234567890
+    containerID: containerd://1234567890abcdef
+  qosClass: BestEffort

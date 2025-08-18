@@ -1,9 +1,8 @@
 package scrubectl
 
 import (
-	"os"
-
 	"gopkg.in/yaml.v3"
+	"os"
 )
 
 // Config holds global and kind-specific removal paths
