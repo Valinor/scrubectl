@@ -1,72 +1,92 @@
 name: CI
+
 permissions:
   contents: write
+
 on:
   push:
     branches: [ main ]
     tags: [ '*' ]
   pull_request:
     branches: [ main ]
+
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        arch: [amd64, arm64]
+  test:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          go-version: '1.25'
-      - name: Build
-        shell: bash
-        run: |
-          export GOARCH=${{ matrix.arch }}
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            go build -o bin/scrubectl-${{ matrix.os }}-${{ matrix.arch }}.exe
-          else
-            go build -o bin/scrubectl-${{ matrix.os }}-${{ matrix.arch }}
-          fi
-      - name: Test
-        run: go test ./pkg/...
-      - name: Format
-        run: go fmt ./... && git diff --exit-code
-      - name: Upload artifact
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+
+      - name: Setup development environment
+        run: make setup
+
+      - name: Run tests
+        run: make test
+
+      - name: Run linter
+        run: make vet
+
+      - name: Generate coverage report
+        run: make test-coverage
+
+      - name: Upload coverage to artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: scrubectl-${{ matrix.os }}-${{ matrix.arch }}
-          path: bin/scrubectl-${{ matrix.os }}-${{ matrix.arch }}*
-  release:
-    needs: build
+          name: coverage-report
+          path: coverage.html
+
+  build:
     runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+
+      - name: Setup development environment
+        run: make setup
+
+      - name: Build snapshot
+        run: make go-build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [test, build]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          name: scrubectl-ubuntu-latest-amd64
-          path: ./artifacts
-      - uses: actions/download-artifact@v4
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          name: scrubectl-ubuntu-latest-arm64
-          path: ./artifacts
-      - uses: actions/download-artifact@v4
-        with:
-          name: scrubectl-macos-latest-amd64
-          path: ./artifacts
-      - uses: actions/download-artifact@v4
-        with:
-          name: scrubectl-macos-latest-arm64
-          path: ./artifacts
-      - uses: actions/download-artifact@v4
-        with:
-          name: scrubectl-windows-latest-amd64
-          path: ./artifacts
-      - uses: actions/download-artifact@v4
-        with:
-          name: scrubectl-windows-latest-arm64
-          path: ./artifacts
-      - name: Publish release assets
-        uses: softprops/action-gh-release@v2
-        with:
-          files: artifacts/*
+          go-version-file: './go.mod'
+
+      - name: Setup development environment
+        run: make setup
+
+      - name: Create release
+        run: make release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
