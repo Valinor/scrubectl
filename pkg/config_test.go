@@ -13,8 +13,15 @@ kindPaths:
     - [b]
 `
 	tmp := "test_config.yaml"
-	os.WriteFile(tmp, []byte(content), 0666)
-	defer os.Remove(tmp)
+	err := os.WriteFile(tmp, []byte(content), 0666)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		if err := os.Remove(tmp); err != nil {
+			t.Logf("Failed to remove test file: %v", err)
+		}
+	}()
 	cfg, err := LoadConfig(tmp)
 	if err != nil {
 		t.Fatal(err)
