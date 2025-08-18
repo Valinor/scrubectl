@@ -28,7 +28,10 @@ func main() {
 	flagSet := flag.NewFlagSet("clean-yaml", flag.ExitOnError)
 	flagSet.StringVar(cfgPath, "config", *cfgPath, "Config file path")
 	flagSet.Var(&extraPaths, "path", "Additional dot-separated path to remove (global)")
-	flagSet.Parse(pluginArgs)
+	err := flagSet.Parse(pluginArgs)
+	if err != nil {
+		return
+	}
 
 	// Buffer for YAML input
 	var inBuf bytes.Buffer
@@ -43,13 +46,19 @@ func main() {
 		cmd.Stdout = &inBuf
 		cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
-			fmt.Fprintf(os.Stderr, "kubectl error: %v\n", err)
+			_, err := fmt.Fprintf(os.Stderr, "kubectl error: %v\n", err)
+			if err != nil {
+				return
+			}
 			os.Exit(1)
 		}
 	} else {
 		// No kubectl args: read from stdin (standalone)
 		if _, err := io.Copy(&inBuf, os.Stdin); err != nil {
-			fmt.Fprintf(os.Stderr, "stdin read error: %v\n", err)
+			_, err := fmt.Fprintf(os.Stderr, "stdin read error: %v\n", err)
+			if err != nil {
+				return
+			}
 			os.Exit(1)
 		}
 	}
@@ -57,7 +66,10 @@ func main() {
 	// Load config
 	cfg, err := cleaner.LoadConfig(*cfgPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "config load error: %v\n", err)
+		_, err := fmt.Fprintf(os.Stderr, "config load error: %v\n", err)
+		if err != nil {
+			return
+		}
 		os.Exit(1)
 	}
 	for _, p := range extraPaths {
@@ -66,7 +78,10 @@ func main() {
 
 	// Clean
 	if err := cleaner.Clean(&inBuf, os.Stdout, cfg.Paths, cfg.KindPaths); err != nil {
-		fmt.Fprintf(os.Stderr, "clean error: %v\n", err)
+		_, err := fmt.Fprintf(os.Stderr, "clean error: %v\n", err)
+		if err != nil {
+			return
+		}
 		os.Exit(1)
 	}
 }

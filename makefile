@@ -2,10 +2,10 @@
 all: build
 
 test:
-	go test ./pkg/scrubctl
+	go test ./pkg/...
 
 build:
-	go build -o bin/scrubctl
+	go build -o bin/scrubectl
 
 fmt:
 	go fmt ./...
