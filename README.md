@@ -129,7 +129,7 @@ scrubectl --export-template > ~/.config/scrubectl/config.yaml
 
 ### Prerequisites
 
-- Go 1.21+
+- Go 1.25+
 - Make
 
 ### Setup Development Environment
