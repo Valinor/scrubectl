@@ -29,7 +29,7 @@ jobs:
       - name: Format
         run: go fmt ./... && git diff --exit-code
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: scrubectl-${{ matrix.os }}-${{ matrix.arch }}
           path: bin/scrubectl-${{ matrix.os }}-${{ matrix.arch }}
