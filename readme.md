@@ -16,7 +16,6 @@
 * **Configurable pruning**: Remove global paths (e.g. `status`) or kind-specific paths (e.g. `.metadata.revision` for ConfigMaps).
 * **Embedded default config**: Bundled sensible defaults.
 * **Config lookup**:
-
     1. `--config /path/to/config.yaml`
     2. `$SCRUBECTLPATH/config.yaml`
     3. `~/.config/scrubectl/config.yaml`
@@ -39,24 +38,24 @@ kubectl krew install scrubectl
 ```bash
 git clone https://github.com/valinor/scrubectl.git
 cd scrubectl
-make all      # builds bin/kubectl-clean-yaml or bin/scrubectl
+make all      # builds bin/scrubectl
 ```
 
 ---
 
 ## Usage
 
-### As a kubectl plugin (not working, work in progress)
+### with kubectl (not a plugin currently, work in progress)
 
 ```bash
 # Basic: strip default paths
-kubectl scrubectl get deploy mydeploy
+scrubectl get deploy mydeploy
 
 # With explicit config
-kubectl scrubectl get pod mypod --config ./config.yaml
+scrubectl get pod mypod --config ./config.yaml
 
 # Add extra removal paths
-kubectl scrubectl get svc mysvc --path metadata.annotations.foo
+scrubectl get svc mysvc --path metadata.annotations.foo
 ```
 
 ### Standalone filter
@@ -66,7 +65,7 @@ kubectl scrubectl get svc mysvc --path metadata.annotations.foo
 cat manifest.yaml | scrubectl > manifest.cleaned.yaml
 
 # Read from stdin with custom config
-scrubectl --config ./config.yaml < manifest.yaml
+scrubectl -- --config ./config.yaml < manifest.yaml
 ```
 
 ### Export default config template
@@ -108,6 +107,9 @@ Given a Deployment YAML with status and rollout annotation:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  uid: 4c2e3d1a-b1d2-4f7a-9b76-1d9e3e15c47a
+  resourceVersion: "123456"
+  creationTimestamp: "2025-08-18T10:12:34Z"
   name: nginx
   annotations:
     rollout: v2.0
@@ -116,13 +118,13 @@ status:
 spec:
   replicas: 3
 status:
- ...
+  phase: Running
 ```
 
 **Command**:
 
 ```bash
-kubectl clean-yaml get deploy nginx
+scrubectl get deploy nginx
 ```
 
 **Output**:
