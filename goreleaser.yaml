@@ -1,0 +1,33 @@
+project_name: scrubectl
+builds:
+  - main: ./main.go
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags: -s -w
+archives:
+  - format: zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+      - config.yaml
+      - test/test.yaml
+      - bin/
+release:
+  github:
+    owner: Valinor
+    name: scrubectl
+    draft: false
+    prerelease: false
+changelog:
+  sort: desc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
